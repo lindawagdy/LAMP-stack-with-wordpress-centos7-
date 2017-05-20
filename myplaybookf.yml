@@ -1,0 +1,97 @@
+- hosts: all
+  tasks:
+
+    - name: mariadb installation
+      yum: pkg={{ item }}
+      with_items:
+        - mariadb-server
+        - mariadb
+        - MySQL-python
+
+    - name: starting mariadb
+      service: name=mariadb state=started enabled=yes
+
+    - name: configuration mariadb
+      mysql_db:
+        name: wordpressdb
+        state: present
+
+    - name: creating user
+      mysql_user:
+        name: 'wordpress'
+        password: wordpress
+        priv: '*.*:ALL'
+        state: present
+
+    - name: apache installation 
+      yum: name=httpd state=present
+
+    - name: starting service
+      service: name=httpd state=started enabled=yes
+
+    - name: changing document root
+      replace:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: 'var/www/html'
+        replace: 'var/www/html/wordpress'
+
+    - name: php modules installation
+      yum: pkg={{ item }} 
+      with_items:
+        - php
+        - php-fpm
+        - php-mysql
+
+#    - name: restarting httpd service
+ #     service: name=httpd state=restarted enabled=yes
+    
+#    - name: check php-fpm
+ #     shell: 'touch /var/www/html/index.php'
+
+  #  - name: check php info
+   #   lineinfile:
+    #    path: /var/www/html/index.php
+     #   line: '<?php phpinfo(); ?>'
+  
+    - name: unarchive wordpress
+      unarchive:
+        src: http://wordpress.org/latest.tar.gz
+        dest: /var/www/html
+        remote_src: True
+
+
+    - name: wordpress configuration file
+      copy:
+        remote_src: True
+        src: /var/www/html/wordpress/wp-config-sample.php 
+        dest: /var/www/html/wordpress/index.php
+    
+    - name: change ownership
+      file:
+        path: /var/www/html/
+        owner: apache
+        group: apache
+        mode: "u+x,g+x,o+x"
+        recurse: yes
+
+    - name: wordpress db name configuration
+      replace:
+        path: /var/www/html/wordpress/index.php
+        regexp: 'database_name_here'
+        replace: 'wordpressdb'
+
+    - name: wordpress db user configuration
+      replace:
+        path: /var/www/html/wordpress/index.php
+        regexp: 'username_here'
+        replace: 'wordpress'
+
+    - name: wordpress db password configuration
+      replace:
+        path: /var/www/html/wordpress/index.php
+        regexp: 'password_here'
+        replace: 'wordpress'
+
+    - name: restarting httpd service
+      service: name=httpd state=restarted enabled=yes
+
