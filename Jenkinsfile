@@ -13,5 +13,11 @@ pipeline {
       }
     }
 
+    stage('Fluffy Deploy') {
+      steps {
+        echo 'Placeholder'
+      }
+    }
+
   }
 }
