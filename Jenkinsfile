@@ -16,8 +16,19 @@ pipeline {
     }
 
     stage('Fluffy Deploy') {
-      steps {
-        echo 'Placeholder'
+      parallel {
+        stage('Fluffy Deploy') {
+          steps {
+            echo 'Placeholder'
+          }
+        }
+
+        stage('test') {
+          steps {
+            echo 'new branch'
+          }
+        }
+
       }
     }
 
