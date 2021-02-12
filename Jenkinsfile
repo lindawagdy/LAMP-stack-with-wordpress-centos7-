@@ -7,5 +7,11 @@ pipeline {
       }
     }
 
+    stage('Fluffy Test') {
+      steps {
+        echo 'Placeholder'
+      }
+    }
+
   }
 }
