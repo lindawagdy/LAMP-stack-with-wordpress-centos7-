@@ -8,8 +8,31 @@ pipeline {
     }
 
     stage('Fluffy Test') {
-      steps {
-        sh 'echo Test'
+      parallel {
+        stage('Fluffy Test') {
+          steps {
+            sh 'echo Test'
+          }
+        }
+
+        stage('frontend') {
+          steps {
+            echo 'stage1'
+          }
+        }
+
+        stage('backend') {
+          steps {
+            echo 'stage2'
+          }
+        }
+
+        stage('performance') {
+          steps {
+            echo 'stage3'
+          }
+        }
+
       }
     }
 
